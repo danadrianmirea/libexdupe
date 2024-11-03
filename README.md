@@ -1,6 +1,6 @@
 libexdupe is a compression library that also performs data deduplication.
 
-It finds identical sequences of data as small as 4 KB across terabytes of input data at a speed of **5 gigabytes per second**<sup>*</sup> with 4 threads.
+It finds identical sequences of data as small as 4 KB across terabytes of input data at a speed of up to **5 gigabyte per second**<sup>*</sup>.
 
 It has a simple C++ interface - all you need to compress from stdin to stdout is following:
 ```
@@ -25,4 +25,11 @@ It's currently just a preview version - use for testing only. You can use tar fo
 
 ```tar cvf - all_my_files | ./demo -c > archive.demo```
 
-<sub><sup>*</sup>Level 0 and bypassing binding.hpp because it performs memcpy() operations.</sub>
+Note that only certain kinds of data will benefit from deduplication. Below is a benchmark of the backup tool [eXdupe](https://exdupe.net/) which uses libexdupe to compress a Linux virtual machine of 22.1 GB:
+
+|                | eXdupe 3 | tar+zstd | kopia | restic | Duplicacy | zpaq64 | 7-Zip flzma2 | Duplicati |
+|----------------|--------|----------|-------|--------|-----------|--------|--------------|-----------|
+| **Time**           | 9.76 s | 14.2 s   | 14.8 s | 24.8 s | 77.0 s    | 112 s  | 209 s        | 360 s     |
+| **Size**          | 7.34 GB| 10.6 GB  | 9.93 GB| 9.21 GB| 11.4 GB   | 8.18 GB| 9.42 GB      | 10.2 GB   |
+
+<sup>*</sup>You can reach 5 gigabyte per second when using libexdupe directly (binding.hpp performs memcpy() operations) when in-memory at compression level 0 on 4 threads.
